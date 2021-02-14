@@ -1,4 +1,5 @@
 mod utils;
+mod logic;
 
 use wasm_bindgen::prelude::*;
 
@@ -9,11 +10,11 @@ use wasm_bindgen::prelude::*;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-extern {
-    fn alert(s: &str);
+extern "C" {
+  fn alert(s: &str);
 }
 
 #[wasm_bindgen]
 pub fn greet() {
-    alert("Hello, rust-mandelbrot!");
+  alert("Hello, rust-mandelbrot!");
 }
