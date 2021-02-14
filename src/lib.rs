@@ -50,3 +50,46 @@ pub fn generate_mandelbrot_set(
       x_min, x_max, y_min, y_max, max_iter)
   })
 }
+
+
+#[wasm_bindgen]
+pub fn draw_mandelbrot_set(){
+  // const CANVAS_ID :&str = "canvas_wasm";
+  const CANVAS_ID :&str = "canvas_hybrid";
+  let document = web_sys::window().unwrap().document().unwrap();
+  let canvas = document.get_element_by_id(CANVAS_ID).unwrap();
+  // HtmlCanvasElement型のAPIを使うためにElement型からキャスト
+  let canvas: web_sys::HtmlCanvasElement = canvas
+    .dyn_into::<web_sys::HtmlCanvasElement>()
+    .map_err(|_| ())
+    .unwrap();
+  // Object型からCanvasRenderingContext2d型にキャスト
+  let context = canvas
+    .get_context("2d") // Result<Option<Object>, JsValue>
+    .unwrap() // Option<Object>
+    .unwrap() // Object
+    .dyn_into::<web_sys::CanvasRenderingContext2d>()
+    .unwrap();
+  let canvas_w = canvas.width() as usize;
+  let canvas_h = canvas.height() as usize;
+  const X_MIN: f64 = -1.5;
+  const X_MAX: f64 = -0.5;
+  const Y_MIN: f64 = -1.0;
+  const Y_MAX: f64 = -1.0;
+  const MAX_ITER: usize = 64;
+
+  let mut result = measure_elapsed_time!("generate:wasm\telapsed:",{
+    logic::generate_mandelbrot_set(canvas_w, canvas_h,
+      X_MIN, X_MAX, Y_MIN, Y_MAX, MAX_ITER)
+  });
+  measure_elapsed_time!("generate:wasm\telapsed:",{
+    let data = ImageData::new_with_u8_clamped_array_and_sh(
+      Clamped(&mut result),
+      canvas.width(),
+      canvas.height(),
+    );
+    if let Ok(data) = data {
+      let _ = context.put_image_data(&data, 0.0, 0.0);
+    }
+  })
+}
