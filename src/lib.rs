@@ -35,7 +35,8 @@ macro_rules! measure_elapsed_time{
   }};
 }
 
-pub fn generage_mandbrot_set(
+#[wasm_bindgen]
+pub fn generate_mandelbrot_set(
   canvas_w: usize,
   canvas_h: usize,
   x_min: f64,
